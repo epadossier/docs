@@ -1,0 +1,249 @@
+---
+title: "Rollen"
+description: "Stel je rollen goed in voor je team"
+icon: "user-group"
+---
+
+## Op rollen gebaseerde toegangscontrole (RBAC)
+
+EPAdossier gebruikt een op rollen gebaseerde toegangscontrolesysteem om permissies binnen organisaties te beheren. Elk lid van een organisatie krijgt een rol toegewezen die bepaalt welke functies en gegevens zij kunnen gebruiken.
+
+## Beschikbare Rollen
+
+| Rol            | Beschrijving                                                        |
+| -------------- | ------------------------------------------------------------------- |
+| **Eigenaar**   | Volledige controle over de organisatie. Kan niet worden verwijderd. |
+| **Beheerder**  | Volledige toegang tot alle functies en instellingen.                |
+| **Adviseur**   | Werkt aan projecten en offertes. Geen financiële toegang.           |
+| **Accountant** | Beheert facturen en facturering. Beperkte toegang tot projecten.    |
+| **Planner**    | Coördineert projecten en relaties. Geen toegang tot facturen.       |
+
+---
+
+## Rol Details
+
+### 👑 Eigenaar
+
+De maker van de organisatie met ultieme controle.
+
+**Belangrijkste Kenmerken:**
+
+- Kan niet worden verwijderd uit de organisatie
+- Enige rol die organisatie-informatie kan bewerken (naam, logo, details)
+- Enige rol die eigendom kan overdragen aan een ander lid
+- Heeft alle permissies van een Beheerder
+
+**Gebruiksdoel:** De eigenaar van het bedrijf of primaire accounthouder.
+
+---
+
+### 🛡️ Beheerder
+
+Volledige operationele toegang zonder eigendomsrechten.
+
+**Permissies:**
+
+- ✅ Alle toegang tot functies (dashboard, offertes, projecten, dossiers, facturen, relaties)
+- ✅ Organisatieleden beheren (uitnodigen, verwijderen, rollen wijzigen)
+- ✅ Toegang tot alle instellingen (producten, tarieven, branding, audit logs)
+- ❌ Kan organisatie-informatie niet bewerken
+- ❌ Kan eigendom niet overdragen
+
+**Gebruiksdoel:** Kantoormanagers, teamleiders, of vertrouwde werknemers die volledige systeemtoegang nodig hebben.
+
+---
+
+### 👔 Adviseur
+
+Veldwerkers die energiebeoordelingen en klantinteracties afhandelen.
+
+**Permissies:**
+| Module | Toegangsniveau |
+|--------|---------------|
+| Dashboard | Beperkt (geen financiële gegevens) |
+| Offertes | Volledig (aanmaken, bewerken, verwijderen, verzenden) |
+| Projecten | Alleen toegewezen (aanmaken, bewerken) |
+| Dossiers | Alleen toegewezen (aanmaken, bewerken, bestanden beheren) |
+| Facturen | ❌ Geen toegang |
+| Creditfacturen | ❌ Geen toegang |
+| Relaties | Alleen bekijken en aanmaken |
+| Instellingen | ❌ Geen toegang |
+
+**Belangrijkste Beperkingen:**
+
+- Kan alleen projecten/dossiers zien die aan hen zijn toegewezen
+- Kan facturen niet bekijken of beheren
+- Kan geen toegang krijgen tot organisatie-instellingen
+- Kan relaties niet verwijderen
+
+**Gebruiksdoel:** Energie-adviseurs, inspecteurs, of consultants die direct werken aan projecten.
+
+---
+
+### 🧮 Accountant
+
+Financiële specialisten gericht op facturering en facturering.
+
+**Permissies:**
+| Module | Toegangsniveau |
+|--------|---------------|
+| Dashboard | Alleen financiële gegevens |
+| Offertes | Alleen bekijken |
+| Projecten | Alle bekijken (alleen-lezen) |
+| Dossiers | ❌ Geen toegang |
+| Facturen | Volledig (aanmaken, bewerken, verwijderen, verzenden) |
+| Creditfacturen | Volledig (aanmaken, bewerken, verwijderen) |
+| Relaties | Alleen bekijken |
+| Instellingen | Alleen factuur-instellingen |
+
+**Belangrijkste Beperkingen:**
+
+- Kan geen offertes aanmaken of bewerken
+- Kan projecten niet wijzigen
+- Kan geen toegang krijgen tot dossiers of bestanden
+- Beperkt tot alleen factuur-gerelateerde instellingen
+
+**Gebruiksdoel:** Boekhouders, financiële beheerders, of factureringsspecialisten.
+
+---
+
+### 📅 Planner
+
+Coördinatoren die planning en klantrelaties beheren.
+
+**Permissies:**
+| Module | Toegangsniveau |
+|--------|---------------|
+| Dashboard | Beperkt (geen financiële gegevens) |
+| Offertes | Volledig (aanmaken, bewerken, verwijderen, verzenden) |
+| Projecten | Volledig (alle bekijken, aanmaken, bewerken, verwijderen) |
+| Dossiers | Alleen bekijken (alle dossiers) |
+| Facturen | ❌ Geen toegang |
+| Creditfacturen | ❌ Geen toegang |
+| Relaties | Volledig (aanmaken, bewerken, verwijderen) |
+| Instellingen | ❌ Geen toegang |
+
+**Belangrijkste Beperkingen:**
+
+- Kan facturen niet bekijken of beheren
+- Kan dossierbestanden niet bewerken
+- Kan geen toegang krijgen tot organisatie-instellingen
+
+**Gebruiksdoel:** Projectcoördinatoren, planners, of klantenservicemedewerkers.
+
+---
+
+## Permissie Matrix
+
+### Functie Toegang Overzicht
+
+| Functie            |  Eigenaar   |  Beheerder  |   Adviseur    |  Accountant   |   Planner   |
+| ------------------ | :---------: | :---------: | :-----------: | :-----------: | :---------: |
+| **Dashboard**      | ✅ Volledig | ✅ Volledig |  🔸 Beperkt   | 💰 Financieel | 🔸 Beperkt  |
+| **Offertes**       | ✅ Volledig | ✅ Volledig |  ✅ Volledig  |  👁️ Bekijken  | ✅ Volledig |
+| **Projecten**      | ✅ Volledig | ✅ Volledig | 🔹 Toegewezen |  👁️ Bekijken  | ✅ Volledig |
+| **Dossiers**       | ✅ Volledig | ✅ Volledig | 🔹 Toegewezen |    ❌ Geen    | 👁️ Bekijken |
+| **Facturen**       | ✅ Volledig | ✅ Volledig |    ❌ Geen    |  ✅ Volledig  |   ❌ Geen   |
+| **Creditfacturen** | ✅ Volledig | ✅ Volledig |    ❌ Geen    |  ✅ Volledig  |   ❌ Geen   |
+| **Relaties**       | ✅ Volledig | ✅ Volledig |  🔸 Beperkt   |  👁️ Bekijken  | ✅ Volledig |
+
+**Legenda:**
+
+- ✅ Volledige toegang (aanmaken, lezen, bijwerken, verwijderen)
+- 👁️ Alleen bekijken (alleen-lezen)
+- 🔹 Alleen toegewezen (kan alleen toegang krijgen tot aan hen toegewezen items)
+- 🔸 Beperkt (gedeeltelijke toegang, zie rol details)
+- 💰 Alleen financieel (alleen financiële/facturerings-gerelateerde gegevens)
+- ❌ Geen toegang
+
+---
+
+### Instellingen Toegang
+
+| Instelling                 |  Eigenaar   |  Beheerder  | Adviseur | Accountant | Planner |
+| -------------------------- | :---------: | :---------: | :------: | :--------: | :-----: |
+| Organisatie Info           | ✅ Bewerken | 👁️ Bekijken |    ❌    |     ❌     |   ❌    |
+| Organisatie Logo           | ✅ Bewerken | 👁️ Bekijken |    ❌    |     ❌     |   ❌    |
+| Leden                      |     ✅      |     ✅      |    ❌    |     ❌     |   ❌    |
+| Producten & Tarieven       |     ✅      |     ✅      |    ❌    |     ❌     |   ❌    |
+| Factuur Instellingen       |     ✅      |     ✅      |    ❌    |     ✅     |   ❌    |
+| Creditfactuur Instellingen |     ✅      |     ✅      |    ❌    |     ✅     |   ❌    |
+| Offerte Instellingen       |     ✅      |     ✅      |    ❌    |     ❌     |   ❌    |
+| Branding                   |     ✅      |     ✅      |    ❌    |     ❌     |   ❌    |
+| Audit Logs                 |     ✅      |     ✅      |    ❌    |     ❌     |   ❌    |
+
+---
+
+### Lid Beheer
+
+| Actie               | Eigenaar | Beheerder | Anderen |
+| ------------------- | :------: | :-------: | :-----: |
+| Leden bekijken      |    ✅    |    ✅     |   ❌    |
+| Leden uitnodigen    |    ✅    |    ✅     |   ❌    |
+| Leden verwijderen   |    ✅    |    ✅     |   ❌    |
+| Lid rollen wijzigen |    ✅    |    ✅     |   ❌    |
+| Eigendom overdragen |    ✅    |    ❌     |   ❌    |
+
+---
+
+## Rol Toewijzing
+
+### Bij Het Uitnodigen Van Leden
+
+Bij het uitnodigen van een nieuw lid kunt u hen een van de volgende rollen toewijzen:
+
+- Beheerder
+- Adviseur (standaard)
+- Accountant
+- Planner
+
+> **Opmerking:** De Eigenaar rol kan niet worden toegewezen. Deze kan alleen worden overgedragen door de huidige eigenaar.
+
+### Rollen Wijzigen
+
+Beheerders en Eigenaren kunnen lidrollen op elk moment wijzigen via:
+
+1. Ga naar **Instellingen** → **Leden**
+2. Klik op het menu (⋮) naast een lid
+3. Selecteer **Rol Wijzigen**
+4. Kies de nieuwe rol en bevestig
+
+### Eigendom Overdragen
+
+Alleen de huidige Eigenaar kan eigendom overdragen:
+
+1. Ga naar **Instellingen** → **Leden**
+2. Klik op het menu (⋮) naast het lid dat de nieuwe eigenaar wordt
+3. Selecteer **Rol Wijzigen**
+4. Klik op **Eigendom Overdragen**
+5. Typ het e-mailadres van het lid om te bevestigen
+6. Klik op de knop **Eigendom Overdragen**
+
+> ⚠️ **Waarschuwing:** Eigendomsoverdracht kan niet ongedaan worden gemaakt. De vorige eigenaar wordt een Beheerder.
+
+---
+
+## Beste Praktijken
+
+1. **Principe van Minste Privileges**: Wijs de minimale rol toe die nodig is voor elk teamlid om hun werk uit te voeren.
+
+2. **Regelmatige Audits**: Controleer periodiek de lidrollen om er zeker van te zijn dat ze nog steeds geschikt zijn.
+
+3. **Eigendom Opvolging**: Heb een plan voor eigendomsoverdracht als de huidige eigenaar de organisatie verlaat.
+
+4. **Rol Documentatie**: Zorg ervoor dat teamleden begrijpen wat hun rol hen toelaat te doen.
+
+---
+
+## Technische Implementatie
+
+Rollen worden opgeslagen in de `member` tabel en worden afgedwongen op zowel:
+
+- **Backend**: tRPC middleware valideert permissies voordat procedures worden uitgevoerd
+- **Frontend**: UI elementen worden verborgen/uitgeschakeld gebaseerd op de permissies van de gebruiker
+
+Voor ontwikkelaars, zie:
+
+- `src/lib/roles/index.ts` - Rol en permissie definities
+- `src/server/trpc.ts` - Middleware en procedure types
+- `src/hooks/use-role.ts` - Frontend permissie hooks

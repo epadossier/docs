@@ -1,0 +1,69 @@
+---
+title: "Project Lead Submission"
+openapi: "POST /projects"
+---
+
+## Overzicht
+
+Deze endpoint stelt je in staat om nieuwe project leads in te dienen bij EPAdossier. Wanneer een lead succesvol wordt ingediend, wordt automatisch de geconfigureerde flow uitgevoerd (zoals het aanmaken van een dossier of het versturen van een link naar de klant).
+
+## Authenticatie
+
+Deze endpoint vereist een geldige API-sleutel in de `X-API-Key` header.
+
+```bash
+X-API-Key: epa_jouw_secret_key
+```
+
+## Voorbeeld Request
+
+```bash
+curl -X POST https://app.epadossier.nl/api/v1/projects \
+  -H "X-API-Key: epa_jouw_secret_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "individual",
+    "customerName": "Jan Janssen",
+    "customerEmail": "jan@example.com",
+    "price": 349.00,
+    "source": "website",
+    "postalCode": "5541VJ",
+    "houseNumber": "3",
+    "place": "Reusel",
+    "street": "Beukenlaan"
+  }'
+```
+
+## Response Format
+
+### Succes (200)
+
+```json
+{
+  "success": true,
+  "projectId": "nanoid_12345",
+  "projectNumber": "PRJ-2025-001"
+}
+```
+
+### Error (400/401/429/500)
+
+```json
+{
+  "success": false,
+  "error": "INVALID_REQUEST",
+  "message": "Ongeldig e-mailadres opgegeven"
+}
+```
+
+## Belangrijke Opmerkingen
+
+<Note type="info">
+  **Automatische Flow Uitvoering**: De geconfigureerde "Flow" (zoals automatisch
+  dossier aanmaken of link versturen) wordt direct na een succesvolle
+  API-aanroep op de achtergrond uitgevoerd.
+</Note>
+
+<Warning>
+  **Rate Limiting**: Maximaal 100 requests per minuut per API-sleutel.
+</Warning>

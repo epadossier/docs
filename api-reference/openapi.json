@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "EPAdossier API",
+    "description": "REST API voor integratie met EPAdossier platform - project leads, dossiers en meer",
     "license": {
       "name": "MIT"
     },
@@ -10,81 +10,65 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://app.epadossier.nl/api/v1"
     }
   ],
   "security": [
     {
-      "bearerAuth": []
+      "ApiKeyAuth": []
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
+    "/projects": {
+      "post": {
+        "summary": "Project Lead Submission",
+        "description": "Stuur een nieuwe project lead naar EPAdossier. De geconfigureerde flow (zoals automatisch dossier aanmaken of link versturen) wordt direct na succesvolle API-aanroep uitgevoerd.",
+        "operationId": "createProjectLead",
+        "tags": ["Projects"],
+        "security": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+            "ApiKeyAuth": []
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/ProjectLeadRequest"
+              },
+              "example": {
+                "type": "individual",
+                "customerName": "Jan Janssen",
+                "customerEmail": "jan@example.com",
+                "price": 349.0,
+                "source": "website",
+                "postalCode": "5541VJ",
+                "houseNumber": "3",
+                "place": "Reusel",
+                "street": "Beukenlaan"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Project lead succesvol aangemaakt",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/ProjectLeadResponse"
+                },
+                "example": {
+                  "success": true,
+                  "projectId": "nanoid_12345",
+                  "projectNumber": "PRJ-2025-001"
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Ongeldige request data",
             "content": {
               "application/json": {
                 "schema": {
@@ -92,32 +76,29 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
           },
-          "400": {
-            "description": "unexpected error",
+          "401": {
+            "description": "Ongeldige of ontbrekende API sleutel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit overschreden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Interne server fout",
             "content": {
               "application/json": {
                 "schema": {
@@ -154,63 +135,136 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "ProjectLeadRequest": {
         "type": "object",
+        "required": ["type", "customerName", "price", "source"],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "type": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "energy_label",
+              "inspection",
+              "consultation"
+            ],
+            "description": "Project type",
+            "example": "individual"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "customerName": {
+            "type": "string",
+            "description": "Volledige naam van de klant",
+            "example": "Jan Janssen"
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "E-mailadres van de klant",
+            "example": "jan@example.com"
+          },
+          "customerPhone": {
+            "type": "string",
+            "description": "Telefoonnummer van de klant",
+            "example": "+31 6 12345678"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "description": "Totaalbedrag voor de aanvraag",
+            "example": 349.0
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "website",
+              "referral",
+              "direct",
+              "advertisement",
+              "social_media",
+              "partner"
+            ],
+            "description": "Bron van de lead",
+            "example": "website"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postcode (bijv. 1234AB)",
+            "example": "5541VJ"
+          },
+          "houseNumber": {
+            "type": "string",
+            "description": "Huisnummer",
+            "example": "3"
+          },
+          "addition": {
+            "type": "string",
+            "description": "Toevoeging",
+            "example": "A"
+          },
+          "place": {
+            "type": "string",
+            "description": "Woonplaats",
+            "example": "Reusel"
+          },
+          "street": {
+            "type": "string",
+            "description": "Straatnaam",
+            "example": "Beukenlaan"
+          },
+          "remarks": {
+            "type": "string",
+            "description": "Optionele opmerkingen bij de aanvraag",
+            "example": "Klant heeft voorkeur voor ochtend afspraken"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "ProjectLeadResponse": {
         "type": "object",
         "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Geeft aan of de aanvraag succesvol was",
+            "example": true
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Unieke identifier van het aangemaakte project",
+            "example": "nanoid_12345"
+          },
+          "projectNumber": {
+            "type": "string",
+            "description": "Mensvriendelijke projectnummer",
+            "example": "PRJ-2025-001"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["success", "error"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Geeft aan of de request succesvol was",
+            "example": false
+          },
           "error": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "description": "Foutcode",
+            "example": "INVALID_REQUEST"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Mensvriendelijke foutbeschrijving",
+            "example": "Ongeldig e-mailadres opgegeven"
           }
         }
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API sleutel voor authenticatie. Verkrijg deze in je EPAdossier account instellingen."
       }
     }
   }

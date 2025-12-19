@@ -1,33 +1,37 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Referentie"
+description: "Integratie handleiding voor EPAdossier API endpoints"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
+## Welkom bij EPAdossier API
+
+De EPAdossier API stelt je in staat om programmatisch te integreren met ons platform. Gebruik onze REST API om leads om te zetten in projecten, dossiers aan te maken en meer.
+
+<Note type="info">
+  **API Sleutel Vereist**: Alle API endpoints vereisen authenticatie via een
+  API-sleutel in de `X-API-Key` header.
 </Note>
 
-## Welcome
+## Authenticatie
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+Alle API endpoints worden geauthenticeerd met behulp van API-sleutels. Je kunt je API-sleutel vinden in je EPAdossier account onder **Instellingen** → **API Sleutels**.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```bash
+# Voorbeeld header
+X-API-Key: epa_jouw_secret_key
 ```
+
+## Base URL
+
+```
+https://app.epadossier.nl/api/v1
+```
+
+## Rate Limiting
+
+- **100 requests per minuut** per API-sleutel
+- **1000 requests per uur** per API-sleutel
+
+<Card title="Bekijk alle endpoints" icon="code" href="/api-reference/endpoint">
+  Ontdek alle beschikbare API endpoints
+</Card>
