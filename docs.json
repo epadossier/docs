@@ -31,41 +31,47 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Handleiding",
-        "groups": [
+        "language": "nl",
+        "default": true,
+        "tabs": [
           {
-            "group": "Aan de slag",
-            "pages": [
-              "index",
-              "sleutel",
-              "omgevingen"
+            "tab": "Handleiding",
+            "groups": [
+              {
+                "group": "Aan de slag",
+                "pages": [
+                  "index",
+                  "sleutel",
+                  "omgevingen"
+                ]
+              },
+              {
+                "group": "Werken met de API",
+                "pages": [
+                  "aanvraag-insturen",
+                  "aanvragen-volgen",
+                  "dossier-ophalen",
+                  "documenten-uploaden"
+                ]
+              },
+              {
+                "group": "Naslag",
+                "pages": [
+                  "fouten-en-limieten"
+                ]
+              }
             ]
           },
           {
-            "group": "Werken met de API",
-            "pages": [
-              "aanvraag-insturen",
-              "aanvragen-volgen",
-              "dossier-ophalen",
-              "documenten-uploaden"
+            "tab": "API-referentie",
+            "groups": [
+              {
+                "group": "Endpoints",
+                "openapi": "openapi.yaml"
+              }
             ]
-          },
-          {
-            "group": "Naslag",
-            "pages": [
-              "fouten-en-limieten"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API-referentie",
-        "groups": [
-          {
-            "group": "Endpoints",
-            "openapi": "openapi.yaml"
           }
         ]
       }

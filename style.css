@@ -42,3 +42,122 @@ html.light {
 html.dark {
   background-color: #040406;
 }
+
+/*
+ * Shapes and sizes of the app: compact 14-15px text, 8px corners
+ * (--radius 0.5rem), thin borders in the border colour, no white cards on the
+ * off-white panel, and a teal-tinted active menu item (sidebar-accent).
+ */
+
+/* The content panel: like the app's inset panel, a soft shadow and 12px. */
+#content-container {
+  border-radius: 12px;
+  border-color: rgb(var(--gray-200) / 0.8);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+/* Type: calmer and a little smaller than Mintlify's default. */
+#page-title {
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.01em;
+}
+
+#content {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+#content .prose h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+#content .prose h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+/* Sidebar menu: 14px rows with 6px corners, the active row in teal. */
+[data-layout-item="sidebar"] a {
+  border-radius: 6px;
+}
+
+html.light [data-layout-item="sidebar"] a[aria-current="page"] {
+  background-color: #cbe8e7; /* sidebar-accent */
+  color: #134245; /* sidebar-accent-foreground */
+  font-weight: 500;
+}
+
+html.dark [data-layout-item="sidebar"] a[aria-current="page"] {
+  background-color: #1c2513; /* sidebar-accent */
+  color: #c4ee99; /* sidebar-accent-foreground */
+  font-weight: 500;
+}
+
+/* Cards: the app's Panel, flat on the panel colour with a thin border. */
+.card {
+  border-radius: 8px !important;
+  background-color: transparent !important;
+  border-color: rgb(var(--gray-200)) !important;
+}
+
+html.dark .card {
+  border-color: rgb(var(--gray-800)) !important;
+}
+
+.card:hover {
+  border-color: rgb(var(--primary)) !important;
+}
+
+html.dark .card:hover {
+  border-color: rgb(var(--primary-light)) !important;
+}
+
+/* Callouts, code, search and buttons get the same 8px corners. */
+.callout,
+.code-block,
+#search-bar-entry,
+#topbar-cta-button a,
+#request-example,
+#response-example {
+  border-radius: 8px !important;
+}
+
+.callout {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+#search-bar-entry {
+  box-shadow: inset 0 0 0 1px rgb(var(--gray-200));
+}
+
+html.dark #search-bar-entry {
+  box-shadow: inset 0 0 0 1px rgb(var(--gray-800));
+}
+
+.card h2 {
+  font-size: 0.9375rem !important;
+  font-weight: 500 !important;
+}
+
+.card {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/*
+ * The site has one language (Dutch, set in docs.json so Mintlify's own
+ * buttons are Dutch); its language picker has nothing to pick.
+ */
+#localization-select-trigger {
+  display: none !important;
+}
+
+/* "Probeer het" in the API reference: the app's primary button, not blue. */
+.tryit-button {
+  background-color: #0b4f4a !important; /* primary-solid */
+  color: #f9f8f7 !important;
+  border-radius: 8px !important;
+}

@@ -23,3 +23,5 @@ De Mintlify-site van de EPAdossier Klant-API (`/api/v1`), op https://epadossier.
 - Thema `almond` met de kleuren van EPAdossier: `colors` en `background` in `docs.json`, de grijstinten en het kader in `style.css`. Die waarden komen uit de product-tokens (`apps/web/src/styles/globals.css` in `epadossier/epadossier`); pas ze daar en hier samen aan.
 - Het lettertype is Satoshi, geladen van de Fontshare-CDN. Zet het lettertypebestand niet in deze repo: de licentie staat publiek verspreiden niet toe.
 - Iconen komen uit Lucide, net als in de app.
+- Vormen zoals in de app: tekst van 14 tot 15px, hoeken van 8px, dunne randen in de randkleur, kaarten zonder eigen witte achtergrond en het actieve menu-item in teal. Alles staat in `style.css`.
+- `navigation.languages` staat op Nederlands, zodat de knoppen van Mintlify zelf Nederlands zijn. De taalkiezer is verborgen zolang er maar één taal is.
