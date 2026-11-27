@@ -1,6 +1,6 @@
 # EPAdossier API-documentatie
 
-De documentatie van de EPAdossier API voor klanten en samenwerkingspartners, gebouwd met [Mintlify](https://mintlify.com). Hij staat op https://epadossier.nl/docs.
+De documentatie van de EPAdossier Klant-API: de API aan de kant van de klant, voor klanten en samenwerkingspartners van een kantoor dat met EPAdossier werkt. Het is geen API voor de kantoren zelf. Gebouwd met [Mintlify](https://mintlify.com). Hij staat op https://epadossier.nl/docs.
 
 - `docs.json`: navigatie, kleuren en logo.
 - `*.mdx`: de handleiding.

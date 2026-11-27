@@ -4,7 +4,7 @@ Regels voor iedereen die deze documentatie wijzigt, mensen en AI-agents.
 
 ## Wat dit is
 
-De Mintlify-site van de EPAdossier API (`/api/v1`), op https://epadossier.nl/docs. De code van de API staat in de repo `epadossier/epadossier`, onder `apps/web/src/app/api/v1` en `apps/web/src/server/partner-api`.
+De Mintlify-site van de EPAdossier Klant-API (`/api/v1`), op https://epadossier.nl/docs. Dit is de API aan de kant van de klant: voor klanten en samenwerkingspartners van een kantoor, met een sleutel die het kantoor maakt. Het is geen API voor kantoren die EPAdossier gebruiken. Houd dat verschil in elke pagina duidelijk: schrijf voor de klant of partner, niet voor het kantoor. De code van de API staat in de repo `epadossier/epadossier`, onder `apps/web/src/app/api/v1` en `apps/web/src/server/partner-api`.
 
 - Verandert een route, een veld of een foutcode in `/api/v1`, werk dan `openapi.yaml` en de handleiding hier in dezelfde week bij.
 - Beschrijf alleen wat de code echt doet. Lees bij twijfel de route na in plaats van te gokken.

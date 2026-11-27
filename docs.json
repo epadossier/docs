@@ -1,8 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "EPAdossier API",
-  "description": "Aanvragen insturen, de stand volgen, het dossier ophalen en documenten uploaden.",
+  "name": "EPAdossier Klant-API",
+  "description": "De API voor klanten en samenwerkingspartners van een kantoor dat met EPAdossier werkt: aanvragen insturen, de stand volgen, het dossier ophalen en documenten uploaden.",
   "colors": {
     "primary": "#0b4f4a",
     "light": "#7ccf00",

@@ -1,9 +1,11 @@
 openapi: 3.1.0
 info:
-  title: EPAdossier API
+  title: EPAdossier Klant-API
   version: "1.0"
   description: >
-    Aanvragen insturen, de stand ervan volgen, het dossier ophalen en
+    De API voor klanten en samenwerkingspartners van een kantoor dat met
+    EPAdossier werkt. Het is geen API voor kantoren om hun eigen EPAdossier
+    te beheren. Aanvragen insturen, de stand ervan volgen, het dossier ophalen en
     documenten in een dossier zetten. Elke aanroep stuurt de API-sleutel mee
     in de header `X-API-Key`.
 servers:

@@ -1,9 +1,15 @@
 ---
 title: "Introductie"
-description: "Wat je met de EPAdossier API kunt en hoe je begint."
+description: "De API voor klanten en samenwerkingspartners van een kantoor dat met EPAdossier werkt."
 ---
 
-Met de EPAdossier API koppel je je eigen software aan het kantoor dat je energielabels en andere opnames maakt. Je kunt:
+<Warning>
+  **Dit is de API aan de kant van de klant.** Hij is voor klanten en samenwerkingspartners van een energielabelkantoor dat met EPAdossier werkt, zoals een makelaar, een woningcorporatie of een installateur die aanvragen doorstuurt.
+
+  Het is **geen** API voor kantoren die EPAdossier zelf gebruiken: je beheert er niet je eigen dossiers, planning, adviseurs of facturen mee. Je werkt altijd namens één klant of partner, met een sleutel die het kantoor voor je maakt.
+</Warning>
+
+Met de Klant-API koppel je je eigen software aan het kantoor dat je energielabels en andere opnames maakt. Je kunt:
 
 - **Aanvragen insturen**, met een of meer adressen, de producten en desgewenst het afgesproken bezoek.
 - **Je aanvragen volgen**: per adres zie je of het gepland is, wanneer het bezoek is en of het energielabel klaar is.
@@ -26,6 +32,8 @@ Met de EPAdossier API koppel je je eigen software aan het kantoor dat je energie
 </CardGroup>
 
 ## Voor wie is de API
+
+De API is voor de **relaties** van een kantoor: klanten en samenwerkingspartners. Het kantoor zelf werkt in EPAdossier en maakt daar de sleutels voor zijn relaties.
 
 Een sleutel hoort altijd bij een relatie van het kantoor. Dat bepaalt wat je ziet en wat je moet meesturen.
 
