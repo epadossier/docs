@@ -17,3 +17,9 @@ De Mintlify-site van de EPAdossier Klant-API (`/api/v1`), op https://epadossier.
 - Veldnamen, codes en paden in `code`. Knoppen en menu's in EPAdossier **vet**.
 - Voorbeelden gebruiken verzonnen maar realistische gegevens (Damrak 1, 1012AB), nooit echte klanten.
 - De basis-URL is voorlopig `https://test.epadossier.nl/api/v1`. Komt live erbij, voeg die dan toe aan `servers` in `openapi.yaml` en aan `omgevingen.mdx`.
+
+## Uiterlijk
+
+- Thema `almond` met de kleuren van EPAdossier: `colors` en `background` in `docs.json`, de grijstinten en het kader in `style.css`. Die waarden komen uit de product-tokens (`apps/web/src/styles/globals.css` in `epadossier/epadossier`); pas ze daar en hier samen aan.
+- Het lettertype is Satoshi, geladen van de Fontshare-CDN. Zet het lettertypebestand niet in deze repo: de licentie staat publiek verspreiden niet toe.
+- Iconen komen uit Lucide, net als in de app.

@@ -1,12 +1,29 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "almond",
   "name": "EPAdossier Klant-API",
   "description": "De API voor klanten en samenwerkingspartners van een kantoor dat met EPAdossier werkt: aanvragen insturen, de stand volgen, het dossier ophalen en documenten uploaden.",
   "colors": {
     "primary": "#0b4f4a",
     "light": "#7ccf00",
     "dark": "#0b4f4a"
+  },
+  "background": {
+    "color": {
+      "light": "#f9f8f7",
+      "dark": "#0c0d10"
+    }
+  },
+  "fonts": {
+    "family": "Satoshi",
+    "source": "https://cdn.fontshare.com/wf/NWBQYJIM7GCZ5XWD7D26ARB3VDY55ZRT/K63EV2KZIGKLE7RANQ2U42S6SVHU5RJ7/X6XYTKIVDUW7GZTZPZNN4EUM5KH54KHF.woff2",
+    "format": "woff2"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "appearance": {
+    "default": "system"
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -20,7 +37,11 @@
         "groups": [
           {
             "group": "Aan de slag",
-            "pages": ["index", "sleutel", "omgevingen"]
+            "pages": [
+              "index",
+              "sleutel",
+              "omgevingen"
+            ]
           },
           {
             "group": "Werken met de API",
@@ -33,7 +54,9 @@
           },
           {
             "group": "Naslag",
-            "pages": ["fouten-en-limieten"]
+            "pages": [
+              "fouten-en-limieten"
+            ]
           }
         ]
       },
@@ -53,7 +76,12 @@
       "display": "interactive"
     },
     "examples": {
-      "languages": ["curl", "javascript", "python", "php"]
+      "languages": [
+        "curl",
+        "javascript",
+        "python",
+        "php"
+      ]
     }
   },
   "navbar": {
@@ -61,6 +89,11 @@
       "type": "button",
       "label": "Naar EPAdossier",
       "href": "https://epadossier.nl"
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://epadossier.nl"
     }
   }
 }

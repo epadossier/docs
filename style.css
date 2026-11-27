@@ -1,0 +1,44 @@
+/*
+ * EPAdossier look for the Mintlify "almond" theme. The colours come from the
+ * product tokens (apps/web/src/styles/globals.css in epadossier/epadossier):
+ * a warm off-white with brown text in light mode, a cool near-black in dark
+ * mode. Mintlify reads its greys as "R G B" triplets.
+ */
+
+:root,
+html.light {
+  --gray-50: 249 248 247; /* background #f9f8f7 */
+  --gray-100: 240 238 235; /* muted #f0eeeb */
+  --gray-200: 219 215 208; /* border #dbd7d0 */
+  --gray-300: 196 190 182;
+  --gray-400: 150 140 135;
+  --gray-500: 119 104 101; /* muted-foreground #776865 */
+  --gray-600: 98 82 78;
+  --gray-700: 78 60 56;
+  --gray-800: 61 42 38;
+  --gray-900: 47 28 25; /* foreground #2f1c19 */
+  --gray-950: 33 19 17;
+}
+
+html.dark {
+  --gray-50: 235 231 225; /* foreground #ebe7e1 */
+  --gray-100: 222 218 212;
+  --gray-200: 198 194 188;
+  --gray-300: 170 165 158;
+  --gray-400: 150 145 138; /* muted-foreground #96918a */
+  --gray-500: 112 109 104;
+  --gray-600: 72 74 78;
+  --gray-700: 46 48 52;
+  --gray-800: 34 36 39; /* border #222427 */
+  --gray-900: 16 18 21; /* card #101215 */
+  --gray-950: 8 9 12; /* background #08090c */
+}
+
+/* The frame around the content panel: the sidebar colour of the app. */
+html.light {
+  background-color: #f0eeeb;
+}
+
+html.dark {
+  background-color: #040406;
+}
