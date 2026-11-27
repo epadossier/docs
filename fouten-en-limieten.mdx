@@ -1,0 +1,67 @@
+---
+title: "Fouten en limieten"
+description: "De foutcodes van de API en hoeveel aanroepen per minuut mogen."
+---
+
+## Een fout
+
+Een fout heeft altijd dezelfde vorm. Reageer in je software op `code`; `error` is een korte uitleg in het Engels voor de ontwikkelaar.
+
+```json
+{
+  "error": "Validation Error",
+  "code": "VALIDATION_ERROR",
+  "details": [
+    {
+      "path": ["addresses", 0, "postalCode"],
+      "message": "A Dutch postcode such as 1234AB"
+    }
+  ]
+}
+```
+
+## Foutcodes
+
+| Status | Code | Betekenis |
+| --- | --- | --- |
+| 400 | `VALIDATION_ERROR` | De aanvraag klopt niet. `details` zegt welk veld |
+| 400 | `BAD_REQUEST` | Bijvoorbeeld een upload die nog niet in de opslag staat |
+| 400 | `CUSTOMER_IS_KEY_RELATION` | De sleutel van een klant stuurde een andere klant mee |
+| 400 | `VISIT_IN_PAST` | De dag van het bezoek is al voorbij |
+| 400 | `PRODUCT_NOT_FOUND` | Het product is onbekend of wordt niet aan deze klant aangeboden |
+| 400 | `RATE_NOT_FOUND` | Het tarief hoort niet bij dit product of deze prijslijst |
+| 400 | `RATE_NOT_FOR_AREA` | Het tarief is voor een andere oppervlakte |
+| 400 | `SURCHARGE_ONLY` | Alleen een toeslag besteld, zonder product |
+| 400 | `INVALID_IDEMPOTENCY_KEY` | De `Idempotency-Key` is korter dan 8 of langer dan 200 tekens |
+| 401 | `MISSING_API_KEY` | De header `X-API-Key` ontbreekt |
+| 401 | `INVALID_API_KEY` | De sleutel is onbekend of ingetrokken |
+| 403 | `RELATION_KEY_REQUIRED` | De sleutel hoort niet bij een relatie en kan daarom niet lezen of uploaden |
+| 403 | `HELD_FOR_PAYMENT` | Het dossier of label wacht op betaling |
+| 404 | `NOT_FOUND` | Onbekend, of niet van de relatie van deze sleutel |
+| 404 | `RELATION_NOT_FOUND` | De `relationId` is geen relatie van dit kantoor |
+| 429 | `RATE_LIMIT_EXCEEDED` | Te veel aanroepen deze minuut |
+| 500 | `INTERNAL_ERROR` | Er ging bij ons iets mis. Probeer het later opnieuw |
+
+<Tip>
+  Een aanvraag of dossier van iemand anders geeft `404` en niet `403`. Zo verraadt de API niet welke aanvragen er bestaan.
+</Tip>
+
+## Limiet
+
+Per sleutel mogen 100 aanroepen per minuut. Elk antwoord vertelt hoe je ervoor staat:
+
+| Header | Wat |
+| --- | --- |
+| `X-RateLimit-Limit` | Hoeveel aanroepen per minuut mogen |
+| `X-RateLimit-Remaining` | Hoeveel er deze minuut nog over zijn |
+| `X-RateLimit-Reset` | Wanneer de teller weer op nul gaat |
+
+Ga je erover, dan krijg je `429` met de header `Retry-After`: het aantal seconden dat je moet wachten.
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "code": "RATE_LIMIT_EXCEEDED",
+  "retryAfter": 30
+}
+```

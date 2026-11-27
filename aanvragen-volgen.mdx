@@ -1,0 +1,90 @@
+---
+title: "Aanvragen volgen"
+description: "De stand van je aanvragen en adressen opvragen."
+---
+
+## Al je aanvragen
+
+`GET /projects` geeft je aanvragen, nieuwste eerst. Een klant ziet zijn eigen aanvragen, een samenwerkingspartner ook de aanvragen die via hem binnenkwamen.
+
+```bash
+curl "https://test.epadossier.nl/api/v1/projects?status=confirmed&limit=50&offset=0" \
+  -H "X-API-Key: epa_jouw_sleutel"
+```
+
+| Parameter | Wat |
+| --- | --- |
+| `status` | Optioneel: `request`, `quoted`, `confirmed`, `rejected` of `cancelled` |
+| `limit` | Optioneel, standaard 50 en hoogstens 100 |
+| `offset` | Optioneel, standaard 0 |
+
+Het antwoord bevat `total`, zodat je weet hoeveel pagina's er zijn.
+
+## Een aanvraag
+
+`GET /projects/{projectId}` geeft een aanvraag met al zijn adressen.
+
+```json
+{
+  "project": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "projectNumber": "PRJ-2026-0001",
+    "status": "confirmed",
+    "createdAt": "2026-11-27T09:00:00.000Z",
+    "relationId": "550e8400-e29b-41d4-a716-446655440001",
+    "customerName": "Pieter Jansen",
+    "remarks": null,
+    "addresses": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "street": "Damrak",
+        "houseNumber": "1",
+        "addition": null,
+        "postalCode": "1012AB",
+        "place": "Amsterdam",
+        "status": "planned",
+        "visit": { "date": "2026-12-03", "time": "09:30" },
+        "dossierId": "550e8400-e29b-41d4-a716-446655440003",
+        "energyLabel": null
+      }
+    ]
+  }
+}
+```
+
+## De stand van een adres
+
+| `status` | Betekenis |
+| --- | --- |
+| `requested` | Aangevraagd |
+| `to_plan` | Moet nog gepland worden |
+| `planned` | Het bezoek staat gepland, zie `visit` |
+| `in_progress` | Het werk loopt: het bezoek is geweest of het label wordt uitgewerkt |
+| `done` | Klaar |
+| `cancelled` | Geannuleerd |
+
+`dossierId` is gevuld zodra het kantoor een dossier voor het adres heeft gemaakt. Daarmee [haal je het dossier op](/dossier-ophalen) en [upload je documenten](/documenten-uploaden).
+
+## Het energielabel
+
+`energyLabel` is `null` tot het label geregistreerd is. Daarna:
+
+```json
+{
+  "available": true,
+  "fileId": "550e8400-e29b-41d4-a716-446655440020",
+  "energyClass": "A",
+  "registeredOn": "2026-12-10",
+  "validUntil": "2036-12-10"
+}
+```
+
+Met de `fileId` [download je het label](/dossier-ophalen#een-bestand-downloaden).
+
+<Info>
+  Wacht het label nog op betaling, dan is `available` `false` en zijn de andere velden `null`. Na de betaling verschijnt het label vanzelf.
+</Info>
+
+## Hoe vaak opvragen
+
+Er zijn nog geen webhooks: je vraagt de stand zelf op. Een keer per uur, of een keer per dag voor oudere aanvragen, is ruim genoeg. Houd rekening met de [limiet van 100 aanroepen per minuut](/fouten-en-limieten#limiet).

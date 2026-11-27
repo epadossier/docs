@@ -1,0 +1,862 @@
+openapi: 3.1.0
+info:
+  title: EPAdossier API
+  version: "1.0"
+  description: >
+    Aanvragen insturen, de stand ervan volgen, het dossier ophalen en
+    documenten in een dossier zetten. Elke aanroep stuurt de API-sleutel mee
+    in de header `X-API-Key`.
+servers:
+  - url: https://test.epadossier.nl/api/v1
+    description: Testomgeving
+security:
+  - apiKey: []
+tags:
+  - name: Aanvragen
+    description: Een aanvraag insturen en de eigen aanvragen lezen.
+  - name: Dossiers
+    description: Een dossier lezen, bestanden downloaden en documenten uploaden.
+paths:
+  /projects:
+    post:
+      tags: [Aanvragen]
+      operationId: createProject
+      summary: Aanvraag insturen
+      description: >
+        Maakt een aanvraag met een of meer adressen. Wie de klant is, volgt uit
+        de sleutel: met de sleutel van een klant laat je `customer` en
+        `relationId` weg. Een samenwerkingspartner die voor een ander bestelt,
+        stuurt `customer` (een nieuwe relatie) of `relationId` (een relatie
+        uit een eerder antwoord).
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+            examples:
+              eigenSleutel:
+                summary: Sleutel van de klant zelf
+                value:
+                  addresses:
+                    - postalCode: 1012AB
+                      houseNumber: 1
+              voorEenKlant:
+                summary: Partner bestelt voor een klant, met bezoek
+                value:
+                  customer:
+                    email: pieter@voorbeeld.nl
+                    firstname: Pieter
+                    lastname: Jansen
+                    phone: "+31612345678"
+                  addresses:
+                    - postalCode: 1012AB
+                      houseNumber: 1
+                      houseType: house
+                  visit:
+                    date: "2026-12-03"
+                    time: "09:30"
+                  remarks: Sleutel ligt bij de buren
+              alleenPlattegrond:
+                summary: Alleen een plattegrond, zonder energielabel
+                value:
+                  addresses:
+                    - postalCode: 1012AB
+                      houseNumber: 1
+                      products:
+                        - articleNumber: Plattegrond
+      responses:
+        "201":
+          description: De aanvraag is gemaakt.
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/RateLimitLimit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/RateLimitRemaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/RateLimitReset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateProjectResponse"
+        "200":
+          description: >
+            Er bestond al een aanvraag met dezelfde `Idempotency-Key`. Je krijgt
+            die aanvraag terug, met `duplicate: true` en de header
+            `Idempotent-Replayed: true`.
+          headers:
+            Idempotent-Replayed:
+              schema:
+                type: string
+                enum: ["true"]
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateProjectResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: De `relationId` is geen relatie van deze organisatie (`RELATION_NOT_FOUND`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+    get:
+      tags: [Aanvragen]
+      operationId: listProjects
+      summary: Aanvragen opvragen
+      description: >
+        De aanvragen van de relatie van de sleutel, nieuwste eerst. Een
+        klant ziet zijn eigen aanvragen, een samenwerkingspartner ook de
+        aanvragen die via hem binnenkwamen.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ProjectStatus"
+        - name: limit
+          in: query
+          required: false
+          description: Hoeveel aanvragen per keer, standaard 50 en hoogstens 100.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          description: Hoeveel aanvragen je overslaat, standaard 0.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Een pagina met aanvragen.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /projects/{projectId}:
+    get:
+      tags: [Aanvragen]
+      operationId: getProject
+      summary: Een aanvraag opvragen
+      description: Een aanvraag met al zijn adressen, de stand per adres en het energielabel zodra het er is.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: De aanvraag.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [project]
+                properties:
+                  project:
+                    $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /dossiers/{dossierId}:
+    get:
+      tags: [Dossiers]
+      operationId: getDossier
+      summary: Een dossier opvragen
+      description: >
+        Het dossier met zijn adressen, de opgeleverde producten en de
+        bestanden die de klant ook in het klantportaal ziet. Wacht het dossier
+        op betaling, dan is `available` false en staan in `files` alleen de
+        eigen uploads.
+      parameters:
+        - $ref: "#/components/parameters/DossierId"
+      responses:
+        "200":
+          description: Het dossier.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [dossier]
+                properties:
+                  dossier:
+                    $ref: "#/components/schemas/Dossier"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /dossiers/{dossierId}/files/{fileId}:
+    get:
+      tags: [Dossiers]
+      operationId: getFileDownload
+      summary: Een bestand downloaden
+      description: >
+        Een downloadlink voor een energielabel, een opgeleverd product of een
+        bestand uit het dossier. Haal `url` op binnen `expiresIn` seconden,
+        zonder API-sleutel.
+      parameters:
+        - $ref: "#/components/parameters/DossierId"
+        - name: fileId
+          in: path
+          required: true
+          description: De `fileId` uit het energielabel, een opgeleverd product of `files`.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: De downloadlink.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadLink"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /dossiers/{dossierId}/zip:
+    get:
+      tags: [Dossiers]
+      operationId: getDossierZip
+      summary: Het hele dossier als ZIP
+      description: Alle bestanden die de klant ziet, in een ZIP. Niet beschikbaar zolang het dossier op betaling wacht.
+      parameters:
+        - $ref: "#/components/parameters/DossierId"
+      responses:
+        "200":
+          description: Het ZIP-bestand.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /dossiers/{dossierId}/uploads:
+    post:
+      tags: [Dossiers]
+      operationId: createUploadLink
+      summary: Uploadlink aanvragen
+      description: >
+        Stap 1 van het uploaden: een link voor een bestand. Stuur het bestand
+        daarna met een `PUT` naar `uploadUrl`, met precies de `headers` uit het
+        antwoord en zonder API-sleutel. Voeg het daarna toe met
+        `POST /dossiers/{dossierId}/files`.
+      parameters:
+        - $ref: "#/components/parameters/DossierId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadLinkRequest"
+      responses:
+        "201":
+          description: De uploadlink.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadLink"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /dossiers/{dossierId}/files:
+    post:
+      tags: [Dossiers]
+      operationId: addUploadedFiles
+      summary: Geüploade documenten toevoegen
+      description: >
+        Stap 3 van het uploaden: zet de geüploade bestanden in het dossier, in
+        de map "Uploads opdrachtgever". Het kantoor krijgt hiervan bericht, net
+        als bij een upload van de klant. Hoogstens 50 bestanden per keer.
+      parameters:
+        - $ref: "#/components/parameters/DossierId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddFilesRequest"
+      responses:
+        "201":
+          description: De bestanden staan in het dossier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddFilesResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: De sleutel uit Instellingen, Organisatie, API. Hij begint met `epa_`.
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      description: De `id` van de aanvraag.
+      schema:
+        type: string
+    DossierId:
+      name: dossierId
+      in: path
+      required: true
+      description: De `dossierId` van een adres van de aanvraag.
+      schema:
+        type: string
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >
+        Een eigen sleutel per aanvraag, 8 tot 200 tekens. Stuur je dezelfde
+        aanvraag nog eens met dezelfde sleutel (bijvoorbeeld na een time-out),
+        dan krijg je de eerste aanvraag terug in plaats van een tweede.
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 200
+  headers:
+    RateLimitLimit:
+      description: Hoeveel aanroepen per minuut mogen.
+      schema:
+        type: integer
+    RateLimitRemaining:
+      description: Hoeveel aanroepen er deze minuut nog over zijn.
+      schema:
+        type: integer
+    RateLimitReset:
+      description: Wanneer de teller weer op nul gaat (ISO 8601).
+      schema:
+        type: string
+        format: date-time
+  responses:
+    BadRequest:
+      description: >
+        De aanvraag klopt niet. Zie `code`, bijvoorbeeld `VALIDATION_ERROR`,
+        `CUSTOMER_IS_KEY_RELATION`, `VISIT_IN_PAST`, `PRODUCT_NOT_FOUND` of
+        `BAD_REQUEST`.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: De sleutel ontbreekt (`MISSING_API_KEY`) of is ongeldig (`INVALID_API_KEY`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: >
+        De sleutel hoort niet bij een relatie (`RELATION_KEY_REQUIRED`), of het
+        dossier of adres wacht op betaling (`HELD_FOR_PAYMENT`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Onbekend, of niet van de relatie van deze sleutel (`NOT_FOUND`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    TooManyRequests:
+      description: Te veel aanroepen deze minuut (`RATE_LIMIT_EXCEEDED`). Wacht `Retry-After` seconden.
+      headers:
+        Retry-After:
+          description: Seconden tot je weer mag.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required: [error, code]
+      properties:
+        error:
+          type: string
+          description: Een korte uitleg in het Engels, voor de ontwikkelaar.
+        code:
+          type: string
+          description: De vaste code om in je eigen software op te reageren.
+          examples: [VALIDATION_ERROR]
+        details:
+          type: array
+          description: Bij een `VALIDATION_ERROR` of een productfout per probleem het veld of adres.
+          items: {}
+        retryAfter:
+          type: integer
+          description: Alleen bij `RATE_LIMIT_EXCEEDED`.
+    ProjectStatus:
+      type: string
+      enum: [request, quoted, confirmed, rejected, cancelled]
+      description: >
+        `request` is binnengekomen, `quoted` heeft een offerte, `confirmed` is
+        bevestigd (ook na facturering), `rejected` is afgewezen en
+        `cancelled` is geannuleerd.
+    AddressStatus:
+      type: string
+      enum: [requested, to_plan, planned, in_progress, done, cancelled]
+      description: >
+        `requested` aangevraagd, `to_plan` moet nog gepland worden, `planned`
+        heeft een bezoek, `in_progress` wordt uitgewerkt, `done` is klaar en
+        `cancelled` is geannuleerd.
+    Customer:
+      type: object
+      description: Een nieuwe klant. Alleen nodig als een samenwerkingspartner bestelt voor een klant die nog geen `relationId` heeft.
+      required: [email, lastname]
+      properties:
+        email:
+          type: string
+          format: email
+        firstname:
+          type: string
+        lastname:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+        isCompany:
+          type: boolean
+          default: false
+        companyName:
+          type: string
+          description: Nodig als `isCompany` true is.
+        kvkNumber:
+          type: string
+        kvkEstablishmentNumber:
+          type: string
+        vatNumber:
+          type: string
+        iban:
+          type: string
+        website:
+          type: string
+        invoiceEmail:
+          type: string
+          format: email
+        quotesEmail:
+          type: string
+          format: email
+    OrderedProduct:
+      type: object
+      description: Een product voor het adres. Stuur `productId` of `articleNumber`.
+      properties:
+        productId:
+          type: string
+        articleNumber:
+          type: string
+          description: Het artikelnummer, zoals `Plattegrond`. Hoofdletters maken niet uit.
+          maxLength: 200
+        rateId:
+          type: string
+          description: Het tarief. Zonder tarief kiest EPAdossier het tarief bij het adres (prijslijst, oppervlakte, woningtype).
+    AddressInput:
+      type: object
+      required: [postalCode, houseNumber]
+      properties:
+        postalCode:
+          type: string
+          description: Een Nederlandse postcode. Spaties en kleine letters mogen.
+          examples: [1012AB]
+        houseNumber:
+          type: integer
+          minimum: 1
+        addition:
+          type: string
+          description: Toevoeging, zoals `A` of `bis`.
+        street:
+          type: string
+        place:
+          type: string
+        livingArea:
+          type: string
+          description: Woonoppervlakte in m².
+        constructionYear:
+          type: string
+        addressBuildingType:
+          type: string
+          enum: [residential, commercial]
+          description: Woning of utiliteit.
+        houseType:
+          type: string
+          enum: [apartment, house, room]
+        detailLabelOverwrite:
+          type: boolean
+          default: false
+        products:
+          type: array
+          minItems: 1
+          maxItems: 20
+          description: Wat er voor dit adres besteld wordt. Zonder `products` kiest EPAdossier het energielabel.
+          items:
+            $ref: "#/components/schemas/OrderedProduct"
+    Visit:
+      type: object
+      description: >
+        Het bezoek, als dag en tijd al zijn afgesproken. Het wordt ingepland
+        voor alle adressen van de aanvraag. Het kantoor kiest de adviseur;
+        het moment wordt niet tegen de planning gecontroleerd.
+      required: [date, time]
+      properties:
+        date:
+          type: string
+          format: date
+          description: De dag, `yyyy-MM-dd`, vandaag of later.
+          examples: ["2026-12-03"]
+        time:
+          type: string
+          pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          description: Het begin, `HH:mm`, Nederlandse tijd.
+          examples: ["09:30"]
+        durationMinutes:
+          type: integer
+          minimum: 15
+          maximum: 600
+          description: Zonder duur duurt het bezoek zo lang als de bestelde producten aangeven.
+    CreateProjectRequest:
+      type: object
+      required: [addresses]
+      properties:
+        relationId:
+          type: string
+          description: Een bestaande relatie, de `relationId` uit een eerder antwoord. Niet met de sleutel van een klant.
+        customer:
+          $ref: "#/components/schemas/Customer"
+        addresses:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/AddressInput"
+        remarks:
+          type: string
+          description: Opmerkingen bij de aanvraag.
+        visit:
+          $ref: "#/components/schemas/Visit"
+    CreateProjectResponse:
+      type: object
+      required: [success, project, relationId]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        project:
+          type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+            projectNumber:
+              type: [string, "null"]
+        relationId:
+          type: [string, "null"]
+          description: De klant van de aanvraag. Bewaar hem om later opnieuw voor deze klant te bestellen.
+        customerId:
+          type: [string, "null"]
+          description: Hetzelfde als `relationId`.
+        quotationId:
+          type: string
+          description: Alleen als de afspraken direct een offerte of opdrachtbevestiging maken.
+        quotationNumber:
+          type: string
+        sent:
+          type: boolean
+          description: True als de offerte of opdrachtbevestiging al naar de klant is gemaild.
+        visit:
+          type: object
+          description: Alleen als je een `visit` meestuurde.
+          properties:
+            date:
+              type: string
+            time:
+              type: string
+            planned:
+              type: boolean
+              description: False als de aanvraag niets heeft om te bezoeken.
+        duplicate:
+          type: boolean
+          description: True als dit de eerdere aanvraag met dezelfde `Idempotency-Key` is.
+    EnergyLabel:
+      type: object
+      required: [available]
+      properties:
+        available:
+          type: boolean
+          description: False zolang het label op betaling wacht. De andere velden zijn dan null.
+        fileId:
+          type: [string, "null"]
+        energyClass:
+          type: [string, "null"]
+          examples: [A]
+        registeredOn:
+          type: [string, "null"]
+          format: date
+        validUntil:
+          type: [string, "null"]
+          format: date
+    ProjectAddress:
+      type: object
+      properties:
+        id:
+          type: string
+        street:
+          type: [string, "null"]
+        houseNumber:
+          type: string
+        addition:
+          type: [string, "null"]
+        postalCode:
+          type: string
+        place:
+          type: [string, "null"]
+        status:
+          $ref: "#/components/schemas/AddressStatus"
+        visit:
+          type: [object, "null"]
+          description: Gevuld zolang het adres `planned` is.
+          properties:
+            date:
+              type: string
+              format: date
+            time:
+              type: string
+        dossierId:
+          type: [string, "null"]
+          description: Het dossier van het adres, zodra het er is.
+        energyLabel:
+          oneOf:
+            - $ref: "#/components/schemas/EnergyLabel"
+            - type: "null"
+          description: Null tot het label geregistreerd is.
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        projectNumber:
+          type: [string, "null"]
+        status:
+          $ref: "#/components/schemas/ProjectStatus"
+        createdAt:
+          type: string
+          format: date-time
+        relationId:
+          type: [string, "null"]
+        customerName:
+          type: [string, "null"]
+        remarks:
+          type: [string, "null"]
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectAddress"
+    ProjectList:
+      type: object
+      required: [projects, total, limit, offset]
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Project"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+    Deliverable:
+      type: object
+      properties:
+        addressId:
+          type: string
+        product:
+          type: string
+          examples: [Plattegrond]
+        name:
+          type: string
+        available:
+          type: boolean
+        fileId:
+          type: [string, "null"]
+    DossierFile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+          examples: [Opname/opnameformulier.pdf]
+        mimeType:
+          type: [string, "null"]
+        sizeBytes:
+          type: [integer, "null"]
+        uploadedAt:
+          type: string
+          format: date-time
+    Dossier:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          description: De stand van het dossier, zoals `registered` als het label geregistreerd is.
+        available:
+          type: boolean
+          description: False zolang het dossier op betaling wacht.
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectAddress"
+        deliverables:
+          type: array
+          items:
+            $ref: "#/components/schemas/Deliverable"
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/DossierFile"
+    DownloadLink:
+      type: object
+      required: [url, name, expiresIn]
+      properties:
+        url:
+          type: string
+          format: uri
+        name:
+          type: string
+        expiresIn:
+          type: integer
+          description: Seconden dat de link geldig is.
+          examples: [300]
+    UploadLinkRequest:
+      type: object
+      required: [name, mimeType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          examples: [plattegrond.pdf]
+        mimeType:
+          type: string
+          examples: [application/pdf]
+    UploadLink:
+      type: object
+      required: [key, uploadUrl, method, headers, expiresIn]
+      properties:
+        key:
+          type: string
+          description: Bewaar deze sleutel voor stap 3.
+        uploadUrl:
+          type: string
+          format: uri
+        method:
+          type: string
+          enum: [PUT]
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        expiresIn:
+          type: integer
+          examples: [900]
+    AddFilesRequest:
+      type: object
+      required: [files]
+      properties:
+        files:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: object
+            required: [key, name]
+            properties:
+              key:
+                type: string
+                description: De `key` uit stap 1.
+              name:
+                type: string
+                maxLength: 255
+              folder:
+                type: string
+                maxLength: 255
+                description: Een map onder "Uploads opdrachtgever", zoals `Plattegronden`.
+    AddFilesResponse:
+      type: object
+      required: [files]
+      properties:
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              path:
+                type: string
+                examples: [Uploads opdrachtgever/Plattegronden/plattegrond.pdf]

@@ -1,37 +1,19 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> If you can run shell commands, run `mint instructions` before any Mintlify task. It prints current guidance for this CLI version. Check it before:
-> - building automations, CI, or scripts for these docs (Mintlify has built-in automations, Autopilot, and CI checks)
-> - changing who can read the docs, publishing, custom domains, or AI and agent features (MCP, llms.txt, skill.md, assistant)
->
-> If `mint` is not installed or says "Unknown command", run `npx mint@latest instructions`.
-> For broader Mintlify product knowledge, install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# AGENTS.md
 
-# Documentation project instructions
+Regels voor iedereen die deze documentatie wijzigt, mensen en AI-agents.
 
-## About this project
+## Wat dit is
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+De Mintlify-site van de EPAdossier API (`/api/v1`), op https://epadossier.nl/docs. De code van de API staat in de repo `epadossier/epadossier`, onder `apps/web/src/app/api/v1` en `apps/web/src/server/partner-api`.
 
-## Terminology
+- Verandert een route, een veld of een foutcode in `/api/v1`, werk dan `openapi.yaml` en de handleiding hier in dezelfde week bij.
+- Beschrijf alleen wat de code echt doet. Lees bij twijfel de route na in plaats van te gokken.
+- Draai `npx mint@latest validate` en `npx mint@latest broken-links` voor je pusht.
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+## Taal en stijl
 
-## Style preferences
-
-{/* Add any project-specific style rules below */}
-
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
-
-## Content boundaries
-
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Nederlands, met "je". Zinnen in zinsvorm, ook koppen: geen Title Case.
+- Nooit een em dash (het lange streepje). Gebruik een dubbele punt, komma of een nieuwe zin.
+- Veldnamen, codes en paden in `code`. Knoppen en menu's in EPAdossier **vet**.
+- Voorbeelden gebruiken verzonnen maar realistische gegevens (Damrak 1, 1012AB), nooit echte klanten.
+- De basis-URL is voorlopig `https://test.epadossier.nl/api/v1`. Komt live erbij, voeg die dan toe aan `servers` in `openapi.yaml` en aan `omgevingen.mdx`.

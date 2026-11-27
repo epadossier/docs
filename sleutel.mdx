@@ -1,0 +1,33 @@
+---
+title: "De API-sleutel"
+description: "Hoe je aan een sleutel komt en hoe je hem meestuurt."
+---
+
+## Een sleutel krijgen
+
+De sleutel wordt gemaakt door het kantoor waarmee je samenwerkt, in EPAdossier onder **Instellingen, Organisatie, API**. Bij het maken kiest het kantoor van wie de sleutel is: een klant of een samenwerkingspartner. Daarna kopieert het kantoor de sleutel en geeft hem aan jou.
+
+Een sleutel begint met `epa_`, gevolgd door 32 letters en cijfers.
+
+<Warning>
+  Houd de sleutel geheim en gebruik hem alleen vanaf je eigen server, nooit in een website of app bij de gebruiker. Wie de sleutel heeft, kan aanvragen insturen, je dossiers lezen en documenten uploaden.
+</Warning>
+
+## De sleutel meesturen
+
+Stuur de sleutel bij elke aanroep mee in de header `X-API-Key`:
+
+```bash
+curl https://test.epadossier.nl/api/v1/projects \
+  -H "X-API-Key: epa_jouw_sleutel"
+```
+
+Zonder sleutel krijg je `401` met de code `MISSING_API_KEY`, met een onbekende of ingetrokken sleutel `401` met `INVALID_API_KEY`.
+
+## Een sleutel zonder relatie
+
+Een kantoor kan ook een sleutel maken die bij geen enkele relatie hoort, bijvoorbeeld voor een eigen website. Zo'n sleutel kan alleen aanvragen insturen. Lezen, downloaden en uploaden geeft `403` met de code `RELATION_KEY_REQUIRED`, want er is dan niemand van wie de aanvragen zijn.
+
+## Een sleutel vervangen
+
+Is een sleutel uitgelekt of niet meer nodig, vraag het kantoor dan om hem te verwijderen en een nieuwe te maken. De oude sleutel werkt direct niet meer.

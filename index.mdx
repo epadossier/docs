@@ -1,20 +1,51 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Introductie"
+description: "Wat je met de EPAdossier API kunt en hoe je begint."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+Met de EPAdossier API koppel je je eigen software aan het kantoor dat je energielabels en andere opnames maakt. Je kunt:
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+- **Aanvragen insturen**, met een of meer adressen, de producten en desgewenst het afgesproken bezoek.
+- **Je aanvragen volgen**: per adres zie je of het gepland is, wanneer het bezoek is en of het energielabel klaar is.
+- **Het dossier ophalen**: het energielabel, de opgeleverde producten en de bestanden, los of als ZIP.
+- **Documenten uploaden** in het dossier, zoals een plattegrond of foto's.
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+<CardGroup cols={2}>
+  <Card title="Een sleutel krijgen" icon="key" href="/sleutel">
+    Het kantoor maakt de sleutel voor je aan.
+  </Card>
+  <Card title="Je eerste aanvraag" icon="paper-plane" href="/aanvraag-insturen">
+    Een aanvraag kan met alleen een postcode en huisnummer.
+  </Card>
+  <Card title="Het dossier ophalen" icon="folder-open" href="/dossier-ophalen">
+    Labels, opgeleverde producten en bestanden downloaden.
+  </Card>
+  <Card title="Fouten en limieten" icon="triangle-exclamation" href="/fouten-en-limieten">
+    De foutcodes en hoeveel aanroepen per minuut mogen.
+  </Card>
+</CardGroup>
+
+## Voor wie is de API
+
+Een sleutel hoort altijd bij een relatie van het kantoor. Dat bepaalt wat je ziet en wat je moet meesturen.
+
+| De sleutel is van | Je ziet | Bij een aanvraag |
+| --- | --- | --- |
+| Een **klant** | De eigen aanvragen | Hoef je de klant niet mee te sturen: het zijn altijd je eigen gegevens |
+| Een **samenwerkingspartner** | De eigen aanvragen en de aanvragen die via jou binnenkwamen | Stuur je de klant mee als je voor een ander bestelt |
+
+Meer hierover staat bij [Aanvraag insturen](/aanvraag-insturen#wie-is-de-klant).
+
+## Wat de API niet doet
+
+De API volgt het werk, niet het geld. Je ziet geen prijzen, offertes of facturen. Die krijgt de klant zoals het kantoor dat heeft afgesproken, per mail of in het klantportaal.
+
+## Basis-URL
+
+```text
+https://test.epadossier.nl/api/v1
+```
+
+Dit is voorlopig de testomgeving. Zie [Omgevingen](/omgevingen).
+
+Alle endpoints, met een knop om ze direct te proberen, staan onder het tabblad **API-referentie**.

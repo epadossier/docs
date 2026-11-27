@@ -1,0 +1,112 @@
+---
+title: "Aanvraag insturen"
+description: "Een aanvraag met adressen, producten en het afgesproken bezoek."
+---
+
+Een aanvraag stuur je met `POST /projects`. Het enige wat altijd nodig is, zijn de adressen.
+
+```bash
+curl -X POST https://test.epadossier.nl/api/v1/projects \
+  -H "X-API-Key: epa_jouw_sleutel" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: bestelling-10023" \
+  -d '{ "addresses": [{ "postalCode": "1012AB", "houseNumber": 1 }] }'
+```
+
+Wat er daarna gebeurt (een offerte, een opdrachtbevestiging, een dossier, een uploadlink voor de klant) staat in de afspraken die het kantoor met de klant heeft. Die hoef je niet mee te sturen.
+
+## Wie is de klant
+
+Dat volgt uit de sleutel.
+
+| De sleutel is van | De klant is | Je stuurt |
+| --- | --- | --- |
+| Een klant | Altijd die klant, met de gegevens die het kantoor al heeft | Geen `customer` en geen `relationId` |
+| Een samenwerkingspartner die voor zichzelf bestelt | De partner | Geen `customer` en geen `relationId` |
+| Een samenwerkingspartner die voor een klant bestelt | Die klant | `customer` voor een nieuwe klant, of `relationId` uit een eerder antwoord |
+| Niemand (een sleutel zonder relatie) | Wie je noemt | `customer` of `relationId` |
+
+Stuurt de sleutel van een klant toch een `customer` of een andere `relationId` mee, dan krijg je `400` met de code `CUSTOMER_IS_KEY_RELATION`.
+
+### Voor een klant bestellen
+
+Een samenwerkingspartner die voor een nieuwe klant bestelt, stuurt de gegevens van die klant mee:
+
+```json
+{
+  "customer": {
+    "email": "pieter@voorbeeld.nl",
+    "firstname": "Pieter",
+    "lastname": "Jansen",
+    "phone": "+31612345678"
+  },
+  "addresses": [{ "postalCode": "1012AB", "houseNumber": 1 }]
+}
+```
+
+Het antwoord bevat een `relationId`. Bewaar die: bestel je later opnieuw voor dezelfde klant, stuur dan alleen `relationId` mee in plaats van `customer`. De API zoekt een klant nooit op e-mailadres, dus zonder `relationId` wordt het een nieuwe relatie.
+
+Voor een bedrijf zet je `isCompany` op `true` en stuur je `companyName` mee, en eventueel `kvkNumber` en `vatNumber`.
+
+## Adressen
+
+Per adres zijn `postalCode` en `houseNumber` genoeg. Wat je meer weet, mag mee: `addition`, `street`, `place`, `livingArea`, `constructionYear`, `houseType` (`apartment`, `house` of `room`) en `addressBuildingType` (`residential` of `commercial`).
+
+## Producten
+
+Zonder `products` kiest EPAdossier het energielabel dat bij het adres past. Wil je iets anders, of meer, noem dan de producten per adres, met het `articleNumber` of de `productId`:
+
+```json
+{
+  "addresses": [
+    {
+      "postalCode": "1012AB",
+      "houseNumber": 1,
+      "products": [{ "articleNumber": "Plattegrond" }]
+    }
+  ]
+}
+```
+
+Dit adres krijgt dan alleen een plattegrond, zonder energielabel. Welke artikelnummers er zijn, hoor je van het kantoor. Een product dat het kantoor niet aan deze klant aanbiedt, geeft `400` met de code `PRODUCT_NOT_FOUND`.
+
+## Het bezoek meesturen
+
+Is de dag en tijd van het bezoek al afgesproken, stuur die dan mee. Het bezoek wordt dan direct ingepland, voor alle adressen van de aanvraag.
+
+```json
+{
+  "addresses": [{ "postalCode": "1012AB", "houseNumber": 1 }],
+  "visit": { "date": "2026-12-03", "time": "09:30" }
+}
+```
+
+| Veld | Wat |
+| --- | --- |
+| `date` | De dag als `yyyy-MM-dd`, vandaag of later |
+| `time` | Het begin als `HH:mm`, Nederlandse tijd |
+| `durationMinutes` | Optioneel, 15 tot 600. Zonder duur duurt het bezoek zo lang als de producten aangeven |
+
+<Note>
+  Het moment wordt overgenomen zoals je het stuurt. Het wordt niet tegen de planning van het kantoor gecontroleerd, en het kantoor kiest welke adviseur er gaat. Een dag in het verleden geeft `400` met de code `VISIT_IN_PAST`.
+</Note>
+
+Het antwoord herhaalt het bezoek met `planned: true`, of `planned: false` als de aanvraag niets heeft om te bezoeken.
+
+## Het antwoord
+
+```json
+{
+  "success": true,
+  "project": { "id": "550e8400-e29b-41d4-a716-446655440000", "projectNumber": "PRJ-2026-0001" },
+  "relationId": "550e8400-e29b-41d4-a716-446655440001",
+  "customerId": "550e8400-e29b-41d4-a716-446655440001",
+  "visit": { "date": "2026-12-03", "time": "09:30", "planned": true }
+}
+```
+
+Met `project.id` volg je de aanvraag daarna, zie [Aanvragen volgen](/aanvragen-volgen).
+
+## Twee keer insturen voorkomen
+
+Stuur met elke aanvraag een eigen `Idempotency-Key` mee, bijvoorbeeld je eigen ordernummer (8 tot 200 tekens). Krijg je geen antwoord, door een time-out of een storing, stuur de aanvraag dan gewoon opnieuw met dezelfde sleutel. Bestond de aanvraag al, dan krijg je `200` met de eerste aanvraag en `duplicate: true`, in plaats van een tweede aanvraag.

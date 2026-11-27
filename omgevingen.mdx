@@ -1,0 +1,19 @@
+---
+title: "Omgevingen"
+description: "Waar je test en waar je straks live gaat."
+---
+
+| Omgeving | Basis-URL | Gebruik |
+| --- | --- | --- |
+| Test | `https://test.epadossier.nl/api/v1` | Om je koppeling te bouwen en te proberen |
+| Live | Volgt | Voor echte aanvragen |
+
+Een sleutel werkt alleen in de omgeving waar hij gemaakt is. Een sleutel van de testomgeving werkt dus niet live, en andersom.
+
+<Note>
+  De API is nu alleen beschikbaar in de testomgeving. Zodra hij live staat, komt hier de live-URL bij. De endpoints en antwoorden blijven hetzelfde: je hoeft dan alleen de basis-URL en de sleutel te wisselen.
+</Note>
+
+## Testen
+
+De testomgeving werkt zoals de live omgeving: een aanvraag komt binnen bij het kantoor van de sleutel en kan mails versturen, zoals een bevestiging of een uploadlink. Gebruik bij het testen daarom je eigen e-mailadressen en geen echte klanten.

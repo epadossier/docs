@@ -1,0 +1,88 @@
+---
+title: "Dossier ophalen"
+description: "Het dossier lezen en het label, de opgeleverde producten en bestanden downloaden."
+---
+
+## Het dossier lezen
+
+`GET /dossiers/{dossierId}` geeft het dossier met wat de klant ook in het klantportaal ziet. De `dossierId` staat bij het adres van een [aanvraag](/aanvragen-volgen).
+
+```json
+{
+  "dossier": {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "projectId": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Damrak 1",
+    "status": "registered",
+    "available": true,
+    "addresses": [],
+    "deliverables": [
+      {
+        "addressId": "550e8400-e29b-41d4-a716-446655440010",
+        "product": "Plattegrond",
+        "name": "plattegrond.pdf",
+        "available": true,
+        "fileId": "550e8400-e29b-41d4-a716-446655440021"
+      }
+    ],
+    "files": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440022",
+        "name": "opnameformulier.pdf",
+        "path": "Opname/opnameformulier.pdf",
+        "mimeType": "application/pdf",
+        "sizeBytes": 182044,
+        "uploadedAt": "2026-12-04T10:12:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+| Veld | Wat |
+| --- | --- |
+| `addresses` | De adressen van het dossier, net als bij een aanvraag, met het energielabel |
+| `deliverables` | Wat er per adres is opgeleverd, zoals een plattegrond of een meetrapport |
+| `files` | De bestanden van het dossier die de klant mag zien |
+
+## Een bestand downloaden
+
+`GET /dossiers/{dossierId}/files/{fileId}` werkt voor de `fileId` van een energielabel, een opgeleverd product en een bestand uit `files`.
+
+```json
+{
+  "url": "https://...",
+  "name": "energielabel.pdf",
+  "expiresIn": 300
+}
+```
+
+Haal `url` op binnen `expiresIn` seconden. Stuur daarbij **geen** API-sleutel mee: de link werkt op zichzelf. Daarom is het antwoord een link en geen doorverwijzing, zodat je sleutel nooit bij de bestandsopslag terechtkomt.
+
+```bash
+# 1. De link vragen
+curl https://test.epadossier.nl/api/v1/dossiers/DOSSIER_ID/files/FILE_ID \
+  -H "X-API-Key: epa_jouw_sleutel"
+
+# 2. Het bestand ophalen, zonder sleutel
+curl -o energielabel.pdf "URL_UIT_STAP_1"
+```
+
+## Het hele dossier als ZIP
+
+`GET /dossiers/{dossierId}/zip` geeft alle bestanden die de klant ziet in één ZIP-bestand (`application/zip`).
+
+```bash
+curl -o dossier.zip https://test.epadossier.nl/api/v1/dossiers/DOSSIER_ID/zip \
+  -H "X-API-Key: epa_jouw_sleutel"
+```
+
+## Wachten op betaling
+
+Heeft het kantoor afgesproken dat het dossier pas na betaling vrijkomt, dan geldt tot die tijd:
+
+- `available` is `false`;
+- `files` bevat alleen wat jij of de klant zelf heeft geüpload;
+- een download of de ZIP geeft `403` met de code `HELD_FOR_PAYMENT`.
+
+Na de betaling is alles vanzelf beschikbaar.

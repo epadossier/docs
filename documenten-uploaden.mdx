@@ -1,0 +1,81 @@
+---
+title: "Documenten uploaden"
+description: "Een plattegrond, foto's of andere documenten in het dossier zetten."
+---
+
+Uploaden gaat in drie stappen, omdat het bestand rechtstreeks naar de bestandsopslag gaat en niet via de API. Zo kunnen ook grote bestanden mee.
+
+Je hebt een `dossierId` nodig. Die staat bij het adres van de [aanvraag](/aanvragen-volgen) zodra het kantoor een dossier heeft gemaakt.
+
+<Steps>
+  <Step title="Een uploadlink vragen">
+    Vraag per bestand een link, met de naam en het type:
+
+    ```bash
+    curl -X POST https://test.epadossier.nl/api/v1/dossiers/DOSSIER_ID/uploads \
+      -H "X-API-Key: epa_jouw_sleutel" \
+      -H "Content-Type: application/json" \
+      -d '{ "name": "plattegrond.pdf", "mimeType": "application/pdf" }'
+    ```
+
+    ```json
+    {
+      "key": "dossiers/550e8400-e29b-41d4-a716-446655440003/0f8fad5b-d9cb-469f-a165-70867728950e.pdf",
+      "uploadUrl": "https://...",
+      "method": "PUT",
+      "headers": { "Content-Type": "application/pdf" },
+      "expiresIn": 900
+    }
+    ```
+
+    Bewaar de `key`: die heb je in stap 3 nodig.
+  </Step>
+  <Step title="Het bestand uploaden">
+    Stuur het bestand met een `PUT` naar `uploadUrl`, binnen `expiresIn` seconden, met precies de `headers` uit het antwoord. Stuur hier **geen** API-sleutel mee.
+
+    ```bash
+    curl -X PUT "UPLOAD_URL_UIT_STAP_1" \
+      -H "Content-Type: application/pdf" \
+      --data-binary @plattegrond.pdf
+    ```
+  </Step>
+  <Step title="Het bestand aan het dossier toevoegen">
+    Meld de geüploade bestanden aan, tot 50 tegelijk:
+
+    ```bash
+    curl -X POST https://test.epadossier.nl/api/v1/dossiers/DOSSIER_ID/files \
+      -H "X-API-Key: epa_jouw_sleutel" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "files": [
+          {
+            "key": "dossiers/550e8400-e29b-41d4-a716-446655440003/0f8fad5b-d9cb-469f-a165-70867728950e.pdf",
+            "name": "plattegrond.pdf",
+            "folder": "Plattegronden"
+          }
+        ]
+      }'
+    ```
+
+    ```json
+    {
+      "files": [
+        {
+          "id": "550e8400-e29b-41d4-a716-446655440023",
+          "path": "Uploads opdrachtgever/Plattegronden/plattegrond.pdf"
+        }
+      ]
+    }
+    ```
+  </Step>
+</Steps>
+
+## Waar de bestanden komen
+
+De bestanden komen in de map **Uploads opdrachtgever** van het dossier, in de map `folder` als je die meestuurt. Het kantoor krijgt er bericht van, net als wanneer de klant zelf iets uploadt.
+
+## Wat niet kan
+
+- **Rekenbestanden** van rekensoftware (Vabi, Uniec3, LabelWise) worden geweigerd met `400`. Die voegt alleen de adviseur toe.
+- **Uploaden zonder dossier** kan nog niet. Wacht tot het adres een `dossierId` heeft.
+- Een `key` van een ander dossier, of een bestand dat nog niet geüpload is, geeft `400` met de code `BAD_REQUEST`.
